@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+VENV_DIR="${VENV_DIR:-/workspace/venv}"
+
+
+
+echo "[setup] repo: $REPO_DIR"
+echo "[setup] venv: $VENV_DIR"
+touch /workspace/SETUP_FINAL_INFERENCE_RUNNING
+trap 'rm -f /workspace/SETUP_FINAL_INFERENCE_RUNNING' EXIT
+echo "[setup] creating/updating virtualenv"
+python3 -m venv "$VENV_DIR"
+
+# shellcheck source=/dev/null
+source "$VENV_DIR/bin/activate"
+
+python -m pip install --upgrade pip wheel "setuptools<81.0.0,>=77.0.3"
+python -m pip install -r "$REPO_DIR/requirements.txt"
+
+echo "[setup] python package check"
+python - <<'PY'
+import importlib
+mods = ["torch", "transformers", "vllm", "peft", "huggingface_hub"]
+for name in mods:
+    mod = importlib.import_module(name)
+    print(f"{name}={getattr(mod, '__version__', 'unknown')}")
+PY
+
+echo "[setup] downloading A17 LoRA adapter"
+python - <<'PY'
+from huggingface_hub import snapshot_download
+snapshot_download(
+    repo_id="Danny-jin/math-sft-a17-lora",
+    local_dir="models/a17_lora",
+    allow_patterns=[
+        "adapter_config.json",
+        "adapter_model.safetensors",
+        "README.md",
+        "tokenizer*",
+        "special_tokens_map.json",
+        "added_tokens.json",
+        "chat_template.jinja",
+        "merges.txt",
+        "vocab.json",
+    ],
+)
+PY
+
+cat > /workspace/READY_FINAL_INFERENCE.txt <<EOF
+Final inference environment is prepared.
+
+Activate the environment:
+
+source $VENV_DIR/bin/activate
+
+Final run:
+
+cd $REPO_DIR
+python run_inference.py
+EOF
+
+rm -f /workspace/SETUP_FINAL_INFERENCE_RUNNING
+echo "[setup] ready: /workspace/READY_FINAL_INFERENCE.txt"

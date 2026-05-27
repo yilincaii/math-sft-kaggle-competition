@@ -152,6 +152,7 @@ Runtime depends on model cache state, vLLM version, and GPU memory bandwidth.
 ## File Map
 
 - `run_inference.py`: required single entry point and CLI.
+- `scripts/setup_vastai_env.sh`: tested dependency setup for the Vast.ai image.
 - `scripts/run_sc.py`: base self-consistency generation.
 - `scripts/run_inference_lora_hiprec.py`: A17 LoRA generation.
 - `scripts/vote_eval.py`: self-consistency voting.
