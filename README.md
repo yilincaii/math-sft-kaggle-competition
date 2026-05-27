@@ -35,6 +35,8 @@ Recommended Vast.ai template:
 
 [math-sft-final-inference-rtx5090](https://cloud.vast.ai?ref_id=506182&template_id=1d9d8aa5309969cfd0c907849664d158)
 
+Run `bash scripts/smoke_test.sh` for a cheap two-row environment check; it is not an accuracy check.
+
 Python entry-point usage:
 
 ```python
@@ -175,6 +177,7 @@ dependencies, downloads the A17 adapter, and writes:
 
 - `run_inference.py`: required single entry point and CLI.
 - `scripts/setup_vastai_env.sh`: tested dependency setup for the Vast.ai image.
+- `scripts/smoke_test.sh`: cheap two-row end-to-end test.
 - `scripts/run_sc.py`: base self-consistency generation.
 - `scripts/run_inference_lora_hiprec.py`: A17 LoRA generation.
 - `scripts/vote_eval.py`: self-consistency voting.
