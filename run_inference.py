@@ -46,6 +46,15 @@ DEFAULT_WORK_DIR = REPO / "outputs" / "run_inference_A17_pipeline"
 DEFAULT_OUTPUT_CSV = REPO / "outputs" / "submission_run_inference_A17_target_gate.csv"
 REQUIRED_LORA_FILES = ("adapter_config.json", "adapter_model.safetensors")
 
+def _prepare_runtime_env() -> None:
+    """Prefer the host CUDA driver library when it is available."""
+    libcuda_dir = "/usr/lib/x86_64-linux-gnu"
+    ld_library_path = os.environ.get("LD_LIBRARY_PATH", "")
+    parts = [part for part in ld_library_path.split(":") if part]
+    if Path(libcuda_dir).is_dir() and libcuda_dir not in parts:
+        os.environ["LD_LIBRARY_PATH"] = libcuda_dir + (":" + ld_library_path if ld_library_path else "")
+
+
 def _env_path(name: str, default: Path | str) -> str:
     return os.environ.get(name, str(default))
 
@@ -278,6 +287,8 @@ def run_inference(
     max_num_seqs: int = 16,
 ) -> Path:
     """Run the full final pipeline and return the submission CSV path."""
+
+    _prepare_runtime_env()
 
     private_path = Path(private_jsonl or _env_path("PRIVATE_JSONL", DEFAULT_PRIVATE_JSONL)).expanduser()
     out_csv = Path(output_csv or _env_path("FINAL_SUBMISSION_CSV", DEFAULT_OUTPUT_CSV)).expanduser()

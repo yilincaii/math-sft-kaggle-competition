@@ -3,6 +3,8 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+# Prefer host driver libcuda over CUDA compat stubs on RTX 5090/Blackwell.
+export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}"
 
 SMOKE_ROWS="${SMOKE_ROWS:-2}"
 SMOKE_MAX_TOKENS="${SMOKE_MAX_TOKENS:-1024}"

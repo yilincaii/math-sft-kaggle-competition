@@ -4,6 +4,7 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 VENV_DIR="${VENV_DIR:-/workspace/venv}"
 
+export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}"
 
 
 echo "[setup] repo: $REPO_DIR"

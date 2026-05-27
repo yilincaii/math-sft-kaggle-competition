@@ -173,6 +173,10 @@ dependencies, downloads the A17 adapter, and writes:
 /workspace/READY_FINAL_INFERENCE.txt
 ```
 
+On RTX 5090 / Blackwell hosts, the setup also makes Python prefer the host
+driver library path `/usr/lib/x86_64-linux-gnu` over CUDA compat stubs to avoid
+`cudaGetDeviceCount` error 804 on some Vast.ai images.
+
 ## File Map
 
 - `run_inference.py`: required single entry point and CLI.
