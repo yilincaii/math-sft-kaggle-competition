@@ -47,7 +47,20 @@ DEFAULT_OUTPUT_CSV = REPO / "outputs" / "submission_run_inference_A17_target_gat
 REQUIRED_LORA_FILES = ("adapter_config.json", "adapter_model.safetensors")
 
 def _prepare_runtime_env() -> None:
-    """Prefer the host CUDA driver library when it is available."""
+    """Set stable Vast.ai runtime defaults when running in `/workspace`."""
+    workspace = Path("/workspace")
+    if workspace.is_dir():
+        defaults = {
+            "HF_HOME": workspace / ".cache" / "huggingface",
+            "HUGGINGFACE_HUB_CACHE": workspace / ".cache" / "huggingface" / "hub",
+            "VLLM_CACHE_ROOT": workspace / ".cache" / "vllm",
+            "TORCHINDUCTOR_CACHE_DIR": workspace / ".cache" / "torchinductor",
+        }
+        for name, path in defaults.items():
+            os.environ.setdefault(name, str(path))
+            Path(os.environ[name]).mkdir(parents=True, exist_ok=True)
+        os.environ.setdefault("HF_HUB_ENABLE_HF_TRANSFER", "1")
+
     libcuda_dir = "/usr/lib/x86_64-linux-gnu"
     ld_library_path = os.environ.get("LD_LIBRARY_PATH", "")
     parts = [part for part in ld_library_path.split(":") if part]

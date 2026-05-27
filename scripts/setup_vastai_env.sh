@@ -4,8 +4,14 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 VENV_DIR="${VENV_DIR:-/workspace/venv}"
 
+export HF_HOME="${HF_HOME:-/workspace/.cache/huggingface}"
+export HUGGINGFACE_HUB_CACHE="${HUGGINGFACE_HUB_CACHE:-/workspace/.cache/huggingface/hub}"
+export VLLM_CACHE_ROOT="${VLLM_CACHE_ROOT:-/workspace/.cache/vllm}"
+export TORCHINDUCTOR_CACHE_DIR="${TORCHINDUCTOR_CACHE_DIR:-/workspace/.cache/torchinductor}"
+export HF_HUB_ENABLE_HF_TRANSFER="${HF_HUB_ENABLE_HF_TRANSFER:-1}"
 export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}"
 
+mkdir -p "$HF_HOME" "$HUGGINGFACE_HUB_CACHE" "$VLLM_CACHE_ROOT" "$TORCHINDUCTOR_CACHE_DIR"
 
 echo "[setup] repo: $REPO_DIR"
 echo "[setup] venv: $VENV_DIR"
@@ -16,6 +22,20 @@ python3 -m venv "$VENV_DIR"
 
 # shellcheck source=/dev/null
 source "$VENV_DIR/bin/activate"
+
+if ! grep -q "math-sft-final-inference runtime defaults" "$VENV_DIR/bin/activate"; then
+  cat >> "$VENV_DIR/bin/activate" <<'EOF'
+
+# math-sft-final-inference runtime defaults for Vast.ai:
+export HF_HOME="${HF_HOME:-/workspace/.cache/huggingface}"
+export HUGGINGFACE_HUB_CACHE="${HUGGINGFACE_HUB_CACHE:-/workspace/.cache/huggingface/hub}"
+export VLLM_CACHE_ROOT="${VLLM_CACHE_ROOT:-/workspace/.cache/vllm}"
+export TORCHINDUCTOR_CACHE_DIR="${TORCHINDUCTOR_CACHE_DIR:-/workspace/.cache/torchinductor}"
+export HF_HUB_ENABLE_HF_TRANSFER="${HF_HUB_ENABLE_HF_TRANSFER:-1}"
+# Prefer host driver libcuda over CUDA compat stubs on RTX 5090/Blackwell.
+export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}"
+EOF
+fi
 
 python -m pip install --upgrade pip wheel "setuptools<81.0.0,>=77.0.3"
 python -m pip install -r "$REPO_DIR/requirements.txt"

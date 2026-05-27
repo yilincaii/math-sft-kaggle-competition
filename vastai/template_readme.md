@@ -11,6 +11,7 @@ This template is intended for one NVIDIA RTX 5090 32GB instance with CUDA
 - HuggingFace CLI / `hf_transfer`
 - the public A17 LoRA adapter under `models/a17_lora`
 - a virtualenv under `/workspace/venv`
+- cache directories under `/workspace/.cache`
 
 For RTX 5090 / Blackwell hosts, the startup script also makes Python prefer
 the host driver `libcuda` path (`/usr/lib/x86_64-linux-gnu`) over CUDA compat
