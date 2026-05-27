@@ -25,17 +25,55 @@ time.
 
 ## Reproduce The Submission
 
-Create a Python environment, install `requirements.txt`, and run:
+The tested environment is one NVIDIA RTX 5090 32GB GPU with CUDA 12.8+ and at
+least 100GB disk. Approximate final inference time is 6-8 hours on this GPU.
+Verification does not require rerunning training; the final A17 LoRA adapter is
+loaded from HuggingFace Hub.
 
-```bash
-python run_inference.py
-```
-
-Recommended Vast.ai template:
+Recommended Vast.ai template for a fresh verification instance:
 
 [math-sft-final-inference-rtx5090](https://cloud.vast.ai?ref_id=506182&template_id=1d9d8aa5309969cfd0c907849664d158)
 
-Run `bash scripts/smoke_test.sh` for a cheap two-row environment check; it is not an accuracy check.
+After the template startup finishes and `/workspace/READY_FINAL_INFERENCE.txt`
+exists:
+
+```bash
+cd /workspace/math-sft-final-inference
+source /workspace/venv/bin/activate
+
+bash scripts/smoke_test.sh
+python run_inference.py
+```
+
+From a manually prepared machine with writable `/workspace`:
+
+```bash
+git clone https://github.com/Danny-jin/math-sft-final-inference.git
+cd math-sft-final-inference
+
+bash scripts/setup_vastai_env.sh
+source /workspace/venv/bin/activate
+
+bash scripts/smoke_test.sh
+python run_inference.py
+```
+
+On a machine without `/workspace`, create an equivalent Python environment,
+install `requirements.txt`, place or download the A17 adapter, and call
+`python run_inference.py` from the repository root.
+
+The smoke test runs two private rows with short generations. It is only a cheap
+end-to-end environment check, not an accuracy check.
+
+The final command writes:
+
+```text
+outputs/submission_run_inference_A17_target_gate.csv
+outputs/submission_run_inference_A17_target_gate.report.json
+```
+
+For official reproduction, run without `--reuse-existing` so all intermediate
+generations are freshly produced.
 
 Python entry-point usage:
 

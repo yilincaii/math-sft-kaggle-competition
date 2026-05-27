@@ -76,6 +76,11 @@ Activate the environment:
 
 source $VENV_DIR/bin/activate
 
+Smoke test:
+
+cd $REPO_DIR
+bash scripts/smoke_test.sh
+
 Final run:
 
 cd $REPO_DIR
