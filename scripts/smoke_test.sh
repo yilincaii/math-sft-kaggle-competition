@@ -21,6 +21,19 @@ SMOKE_OUTPUT_CSV="${SMOKE_OUTPUT_CSV:-outputs/smoke/submission_smoke.csv}"
 
 echo "[smoke] repo: $(pwd)"
 
+if [ -e /workspace/SETUP_FINAL_INFERENCE_RUNNING ] || pgrep -f "scripts/setup_vastai_env.sh" >/dev/null 2>&1; then
+  echo "[smoke] setup is still running; waiting for /workspace/READY_FINAL_INFERENCE.txt ..."
+  for _ in $(seq 1 180); do
+    if [ -s /workspace/READY_FINAL_INFERENCE.txt ]; then
+      break
+    fi
+    if ! pgrep -f "scripts/setup_vastai_env.sh" >/dev/null 2>&1 && [ ! -e /workspace/SETUP_FINAL_INFERENCE_RUNNING ]; then
+      break
+    fi
+    sleep 10
+  done
+fi
+
 if [ -z "${PYTHON:-}" ] && [ -x /workspace/venv/bin/python ]; then
   PYTHON=/workspace/venv/bin/python
 fi
